@@ -66,11 +66,17 @@ export default function Home() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="overflow-hidden">
-        <header
-          className="flex h-16 shrink-0 items-center gap-2 border-b px-4 transition-[width,padding-right] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 w-full"
-          style={{ paddingRight: isThemeBuilderOpen ? "400px" : "1rem" }}
-        >
+      {/*
+       * SidebarInset fills the remaining space after the sidebar.
+       * We drive padding-right via the CSS custom property --drawer-width
+       * (set by ThemeDrawer's useEffect). This avoids hardcoded pixel values
+       * and means mobile/tablet get zero padding (overlay drawer).
+       */}
+      <SidebarInset
+        className="overflow-hidden transition-[padding-right] duration-300 ease-in-out"
+        style={{ paddingRight: "var(--drawer-width, 0px)" }}
+      >
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 transition-[height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -85,12 +91,9 @@ export default function Home() {
         </header>
 
         {/* Main Content Area */}
-        <div
-          className="flex flex-1 flex-col gap-4 p-4 pt-0 transition-[padding-right] duration-300 ease-in-out overflow-hidden"
-          style={{ paddingRight: isThemeBuilderOpen ? "400px" : "1rem" }}
-        >
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 overflow-auto">
           {/* Design System Navigation */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
             <Link href="/typography">
               <Card className="h-full hover:border-primary cursor-pointer transition-colors">
                 <CardHeader>
@@ -144,13 +147,13 @@ export default function Home() {
           </div>
 
           {/* Dashboard Layout */}
-          <div className="flex flex-col gap-4 p-4 overflow-auto">
+          <div className="flex flex-col gap-4 p-4">
             <SectionCards />
             <div className="px-4 lg:px-6">
               <ChartAreaInteractive />
             </div>
             <div className="rounded-xl border bg-card text-card-foreground shadow">
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <h3 className="text-lg font-semibold leading-none tracking-tight mb-4">
                   Current Tasks
                 </h3>

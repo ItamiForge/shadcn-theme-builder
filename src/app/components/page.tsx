@@ -33,11 +33,10 @@ export default function ComponentsPage() {
 
   return (
     <SidebarProvider>
-      <SidebarInset>
-        <div className="min-h-screen bg-background">
-          <SiteHeader />
-          <div className="flex flex-1">
-            <main className="flex-1 p-8 md:p-12 max-w-7xl mx-auto">
+      {/* --drawer-width is set by ThemeDrawer's useEffect; 0px on mobile (overlay), 400px on desktop (push) */}
+      <SidebarInset style={{ paddingRight: "var(--drawer-width, 0px)", transition: "padding-right 0.3s ease" }}>
+        <SiteHeader />
+        <main className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto">
           <div className="space-y-12">
             <div>
               <h1 className="text-4xl font-bold mb-2">Component Gallery</h1>
@@ -353,8 +352,6 @@ export default function ComponentsPage() {
         </main>
 
         <ThemeDrawer isOpen={isDrawerOpen} setIsOpen={setIsDrawerOpen} />
-      </div>
-        </div>
       </SidebarInset>
     </SidebarProvider>
   );

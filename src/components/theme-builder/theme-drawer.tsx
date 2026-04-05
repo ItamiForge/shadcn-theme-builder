@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Moon, PanelRightClose, RotateCcw, Settings2, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,23 @@ export function ThemeDrawer({ isOpen, setIsOpen }: ThemeDrawerProps) {
     resetTheme,
   } = useTheme();
 
+  // Drive the CSS --drawer-width variable so the layout can pad itself
+  // without hardcoded inline styles. Desktop (≥1024px) gets push behaviour;
+  // smaller viewports get an overlay (no layout shift).
+  useEffect(() => {
+    const DRAWER_W = 400;
+    const applyWidth = () => {
+      const isPush = window.innerWidth >= 1024;
+      document.documentElement.style.setProperty(
+        "--drawer-width",
+        isOpen && isPush ? `${DRAWER_W}px` : "0px"
+      );
+    };
+    applyWidth();
+    window.addEventListener("resize", applyWidth);
+    return () => window.removeEventListener("resize", applyWidth);
+  }, [isOpen]);
+
   const colorGroups = {
     Base: ["background", "foreground", "card", "cardForeground", "popover", "popoverForeground"],
     Brand: [
@@ -66,23 +84,45 @@ export function ThemeDrawer({ isOpen, setIsOpen }: ThemeDrawerProps) {
 
   return (
     <>
+      {/* FAB toggle — hides when drawer is open on desktop (push mode), stays for overlay close on mobile */}
       <Button
         variant="outline"
         size="icon"
+        aria-label={isOpen ? "Close theme builder" : "Open theme builder"}
         className={cn(
-          "fixed bottom-8 right-8 z-50 shadow-2xl rounded-full h-14 w-14 p-0 transition-transform duration-300",
-          isOpen ? "translate-x-[400px]" : "translate-x-0",
+          // Position: bottom-right, respects safe-area-inset on mobile
+          "fixed z-50 shadow-xl rounded-full h-12 w-12 transition-all duration-300",
+          "bottom-[calc(2rem+env(safe-area-inset-bottom,0px))]",
+          // On desktop push mode, slide the FAB with the drawer so it's always reachable
+          isOpen
+            ? "right-[calc(var(--drawer-width)+1rem)] lg:right-[calc(400px+1rem)]"
+            : "right-[calc(1rem+env(safe-area-inset-right,0px))]",
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <Settings2 className="h-6 w-6" /> : <Settings2 className="h-6 w-6" />}
+        <Settings2 className="h-5 w-5" />
       </Button>
 
-      <div
+      {/* Backdrop overlay — only visible on mobile/tablet where drawer overlays content */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          aria-hidden="true"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Drawer panel */}
+      <aside
         className={cn(
-          "fixed top-0 right-0 h-screen bg-background border-l transition-all duration-300 ease-in-out z-40 flex flex-col",
-          isOpen ? "w-[400px] translate-x-0" : "w-[400px] translate-x-full",
+          // Base: fixed right-side panel, full height, slides in/out
+          "fixed top-0 right-0 z-40 flex h-dvh flex-col bg-background border-l",
+          "transition-transform duration-300 ease-in-out",
+          // Width: full-width on mobile (<sm), 360px on sm-lg, 400px on lg+
+          "w-full sm:w-[360px] lg:w-[400px]",
+          isOpen ? "translate-x-0" : "translate-x-full",
         )}
+        aria-label="Theme builder"
       >
         <div className="p-6 pb-2 border-b">
           <div className="flex flex-col gap-4">
@@ -184,7 +224,7 @@ export function ThemeDrawer({ isOpen, setIsOpen }: ThemeDrawerProps) {
             ))}
           </div>
         </ScrollArea>
-      </div>
+      </aside>
     </>
   );
 }

@@ -12,215 +12,177 @@ export default function TypographyPage() {
 
   return (
     <SidebarProvider>
-      <SidebarInset>
-        <div className="min-h-screen bg-background">
-          <SiteHeader />
-          <div className="flex flex-1">
-            <main className="flex-1 p-8 md:p-12 max-w-6xl mx-auto">
-        <div className="space-y-12">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Typography</h1>
+      <SidebarInset
+        className="transition-[padding-right] duration-300 ease-in-out"
+        style={{ paddingRight: "var(--drawer-width, 0px)" }}
+      >
+        <SiteHeader />
+
+        <main className="p-4 sm:p-6 lg:p-10 space-y-12 max-w-5xl">
+          {/* Page header */}
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold sm:text-4xl">Typography</h1>
             <p className="text-muted-foreground">
-              Explore the typography system with the current font: <span className="font-semibold text-foreground">{font}</span>
+              Active font:{" "}
+              <span className="font-semibold text-foreground">{font}</span>
             </p>
           </div>
 
-          {/* Heading Levels */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-b pb-3">Heading Levels</h2>
-            <div className="space-y-8">
-              <div>
-                <h1 className="text-5xl font-bold mb-2">Heading 1</h1>
-                <p className="text-sm text-muted-foreground">Size: 3rem (48px) | Weight: Bold</p>
-              </div>
-              <div>
-                <h2 className="text-4xl font-bold mb-2">Heading 2</h2>
-                <p className="text-sm text-muted-foreground">Size: 2.25rem (36px) | Weight: Bold</p>
-              </div>
-              <div>
-                <h3 className="text-3xl font-bold mb-2">Heading 3</h3>
-                <p className="text-sm text-muted-foreground">Size: 1.875rem (30px) | Weight: Bold</p>
-              </div>
-              <div>
-                <h4 className="text-2xl font-semibold mb-2">Heading 4</h4>
-                <p className="text-sm text-muted-foreground">Size: 1.5rem (24px) | Weight: Semibold</p>
-              </div>
-              <div>
-                <h5 className="text-xl font-semibold mb-2">Heading 5</h5>
-                <p className="text-sm text-muted-foreground">Size: 1.25rem (20px) | Weight: Semibold</p>
-              </div>
-              <div>
-                <h6 className="text-lg font-semibold mb-2">Heading 6</h6>
-                <p className="text-sm text-muted-foreground">Size: 1.125rem (18px) | Weight: Semibold</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Body Text */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-b pb-3">Body Text</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="text-base mb-2">
-                  This is a paragraph with normal body text. Lorem ipsum dolor sit amet, consectetur adipiscing
-                  elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </p>
-                <p className="text-sm text-muted-foreground">Size: 1rem (16px)</p>
-              </div>
-              <div>
-                <p className="text-sm mb-2">
-                  This is smaller text, often used for captions or supplementary information. It provides a
-                  visual hierarchy and helps distinguish secondary content from primary content.
-                </p>
-                <p className="text-xs text-muted-foreground">Size: 0.875rem (14px)</p>
-              </div>
-              <div>
-                <p className="text-xs mb-2">
-                  This is extra small text, typically used for labels, hints, or very minor supplementary
-                  information.
-                </p>
-                <p className="text-xs text-muted-foreground">Size: 0.75rem (12px)</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Font Weights */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-b pb-3">Font Weights</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="font-light">Thin - Font weight 100</p>
-              </div>
-              <div>
-                <p className="font-extralight">Extra Light - Font weight 200</p>
-              </div>
-              <div>
-                <p className="font-light">Light - Font weight 300</p>
-              </div>
-              <div>
-                <p className="font-normal">Normal - Font weight 400</p>
-              </div>
-              <div>
-                <p className="font-medium">Medium - Font weight 500</p>
-              </div>
-              <div>
-                <p className="font-semibold">Semibold - Font weight 600</p>
-              </div>
-              <div>
-                <p className="font-bold">Bold - Font weight 700</p>
-              </div>
-              <div>
-                <p className="font-extrabold">Extra Bold - Font weight 800</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Text Styles */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-b pb-3">Text Styles</h2>
-            <div className="space-y-4">
-              <div>
-                <p>
-                  This is <strong>bold text</strong> for emphasis
-                </p>
-              </div>
-              <div>
-                <p>
-                  This is <em>italic text</em> for emphasis
-                </p>
-              </div>
-              <div>
-                <p>
-                  This is <u>underlined text</u> for emphasis
-                </p>
-              </div>
-              <div>
-                <p>
-                  This is <code className="bg-muted px-2 py-1 rounded font-mono text-sm">inline code</code> text
-                </p>
-              </div>
-              <div>
-                <p className="line-through">This is struck through text</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Letter Spacing */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-b pb-3">Letter Spacing</h2>
+          {/* Heading scale */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">Heading Scale</h2>
             <div className="space-y-6">
-              <div>
-                <p style={{ letterSpacing: "-0.05em" }} className="text-lg font-semibold mb-2">
-                  Tight Spacing (-0.05em)
-                </p>
-                <p style={{ letterSpacing: "-0.05em" }}>
-                  This text has tight letter spacing for a more condensed appearance.
-                </p>
-              </div>
-              <div>
-                <p style={{ letterSpacing: "0em" }} className="text-lg font-semibold mb-2">
-                  Normal Spacing (Applied: {letterSpacing}em)
-                </p>
-                <p style={{ letterSpacing: `${letterSpacing}em` }}>
-                  This text uses the current letter spacing value from your theme settings.
-                </p>
-              </div>
-              <div>
-                <p style={{ letterSpacing: "0.1em" }} className="text-lg font-semibold mb-2">
-                  Loose Spacing (0.1em)
-                </p>
-                <p style={{ letterSpacing: "0.1em" }}>
-                  This text has loose letter spacing for a more open appearance.
-                </p>
-              </div>
+              {(
+                [
+                  ["H1", "text-5xl font-bold"],
+                  ["H2", "text-4xl font-bold"],
+                  ["H3", "text-3xl font-bold"],
+                  ["H4", "text-2xl font-semibold"],
+                  ["H5", "text-xl font-semibold"],
+                  ["H6", "text-lg font-semibold"],
+                ] as const
+              ).map(([label, className]) => (
+                <div key={label} className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4">
+                  <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{label}</span>
+                  <p className={className}>The quick brown fox jumps over the lazy dog</p>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* Line Height */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-b pb-3">Line Height</h2>
+          {/* Body text sizes */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">Body Text Sizes</h2>
             <div className="space-y-6">
-              <div>
-                <p className="leading-tight font-semibold mb-2">Tight Line Height (1.25)</p>
-                <p className="leading-tight">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-                  labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris.
-                </p>
-              </div>
-              <div>
-                <p className="leading-normal font-semibold mb-2">Normal Line Height (1.5)</p>
-                <p className="leading-normal">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-                  labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris.
-                </p>
-              </div>
-              <div>
-                <p className="leading-relaxed font-semibold mb-2">Relaxed Line Height (1.625)</p>
-                <p className="leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-                  labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris.
-                </p>
-              </div>
-              <div>
-                <p className="leading-loose font-semibold mb-2">Loose Line Height (2)</p>
-                <p className="leading-loose">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-                  labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris.
-                </p>
-              </div>
+              {(
+                [
+                  ["xl", "text-xl", "20px"],
+                  ["lg", "text-lg", "18px"],
+                  ["base", "text-base", "16px — default"],
+                  ["sm", "text-sm", "14px"],
+                  ["xs", "text-xs", "12px"],
+                ] as const
+              ).map(([label, className, note]) => (
+                <div key={label} className="space-y-0.5">
+                  <p className={`${className} font-medium`}>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  </p>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    {label} · {note}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
-        </div>
-      </main>
 
-      <ThemeDrawer isOpen={isDrawerOpen} setIsOpen={setIsDrawerOpen} />
+          {/* Font weights */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">Font Weights</h2>
+            <div className="space-y-3">
+              {(
+                [
+                  ["font-thin", "Thin · 100"],
+                  ["font-extralight", "Extra Light · 200"],
+                  ["font-light", "Light · 300"],
+                  ["font-normal", "Normal · 400"],
+                  ["font-medium", "Medium · 500"],
+                  ["font-semibold", "Semibold · 600"],
+                  ["font-bold", "Bold · 700"],
+                  ["font-extrabold", "Extra Bold · 800"],
+                  ["font-black", "Black · 900"],
+                ] as const
+              ).map(([className, label]) => (
+                <div key={className} className="flex items-center gap-4">
+                  <span className="text-xs font-mono text-muted-foreground w-28 shrink-0">{className}</span>
+                  <p className={`text-base ${className}`}>{label}</p>
+                </div>
+              ))}
             </div>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    );
+          </section>
+
+          {/* Inline styles */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">Inline Decorations</h2>
+            <div className="space-y-3 text-base">
+              <p>Default body text — the baseline for everything.</p>
+              <p>
+                Text with <strong>bold</strong>, <em>italic</em>, <u>underline</u>, and{" "}
+                <s>strikethrough</s>.
+              </p>
+              <p>
+                Inline{" "}
+                <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-sm">
+                  monospace code
+                </code>{" "}
+                within prose.
+              </p>
+              <p>
+                A{" "}
+                <a href="#" className="text-primary underline underline-offset-4 hover:text-primary/80">
+                  hyperlink example
+                </a>{" "}
+                with default styles.
+              </p>
+            </div>
+          </section>
+
+          {/* Letter spacing */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">Letter Spacing</h2>
+            <p className="text-sm text-muted-foreground">
+              Theme letter-spacing is currently{" "}
+              <span className="font-mono font-semibold text-foreground">{letterSpacing}em</span>.
+            </p>
+            <div className="space-y-6">
+              {(
+                [
+                  ["-0.05em", "Tight (-0.05em)"],
+                  ["-0.025em", "Slightly tight (-0.025em)"],
+                  [`${letterSpacing}em`, `Theme value (${letterSpacing}em)`],
+                  ["0.05em", "Wide (0.05em)"],
+                  ["0.1em", "Loose (0.1em)"],
+                ] as const
+              ).map(([spacing, label]) => (
+                <div key={spacing} className="space-y-0.5">
+                  <p
+                    className="text-base"
+                    style={{ letterSpacing: spacing }}
+                  >
+                    The quick brown fox jumps over the lazy dog
+                  </p>
+                  <p className="text-xs text-muted-foreground font-mono">{label}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Line height */}
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">Line Height</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {(
+                [
+                  ["leading-tight", "Tight · 1.25"],
+                  ["leading-snug", "Snug · 1.375"],
+                  ["leading-normal", "Normal · 1.5"],
+                  ["leading-relaxed", "Relaxed · 1.625"],
+                  ["leading-loose", "Loose · 2"],
+                ] as const
+              ).map(([className, label]) => (
+                <div key={className} className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-mono">{label}</p>
+                  <p className={`text-sm ${className}`}>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+                    incididunt ut labore et dolore magna aliqua.
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </main>
+
+        <ThemeDrawer isOpen={isDrawerOpen} setIsOpen={setIsDrawerOpen} />
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
