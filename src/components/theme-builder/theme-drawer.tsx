@@ -163,7 +163,7 @@ export function ThemeDrawer({ isOpen, setIsOpen }: ThemeDrawerProps) {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 px-6 pb-6">
+        <ScrollArea className="flex-1 min-h-0 px-6 pb-6">
           <div className="space-y-8 pb-10 pt-6">
             {/* Global Settings */}
             <div className="space-y-6">
