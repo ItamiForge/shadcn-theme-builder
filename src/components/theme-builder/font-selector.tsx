@@ -8,22 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AVAILABLE_FONTS } from "@/lib/theme/utils";
 
 interface FontSelectorProps {
   font: string;
   onChange: (font: string) => void;
 }
-
-const fonts = [
-  "Inter",
-  "Roboto",
-  "Open Sans",
-  "Playfair Display",
-  "Montserrat",
-  "Poppins",
-  "Lato",
-  "Geist", // NextJS default
-];
 
 export function FontSelector({ font, onChange }: FontSelectorProps) {
   return (
@@ -34,16 +24,13 @@ export function FontSelector({ font, onChange }: FontSelectorProps) {
           <SelectValue placeholder="Select font" />
         </SelectTrigger>
         <SelectContent>
-          {fonts.map((f) => (
+          {AVAILABLE_FONTS.map((f) => (
             <SelectItem key={f} value={f} className="text-xs">
               <span style={{ fontFamily: f }}>{f}</span>
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <p className="text-[10px] text-muted-foreground mt-1">
-        * Note: Fonts must be installed locally or via Google Fonts
-      </p>
     </div>
   );
 }

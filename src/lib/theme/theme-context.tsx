@@ -1,211 +1,247 @@
 "use client";
 
+/**
+ * Live theme state for the lab: dual palettes, axes, undo, persistence, and CSS apply.
+ * URL `?theme=` wins over localStorage on first hydrate.
+ */
+
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { applyPaletteToElement } from "./css-codec";
 import { THEME_PRESETS } from "./presets";
+import {
+  createDefaultTheme,
+  type ColorTokenKey,
+  type ThemeColors,
+  type ThemeDocument,
+  type ThemeMode,
+} from "./schema";
+import {
+  clearThemeStorage,
+  loadThemeFromStorage,
+  saveThemeToStorage,
+  themeFromSearchParams,
+} from "./url-state";
 import { loadGoogleFont } from "./utils";
 
-export type ThemeColors = {
-  background: string;
-  foreground: string;
-  card: string;
-  cardForeground: string;
-  popover: string;
-  popoverForeground: string;
-  primary: string;
-  primaryForeground: string;
-  secondary: string;
-  secondaryForeground: string;
-  muted: string;
-  mutedForeground: string;
-  accent: string;
-  accentForeground: string;
-  destructive: string;
-  destructiveForeground: string;
-  border: string;
-  input: string;
-  ring: string;
-  chart1: string;
-  chart2: string;
-  chart3: string;
-  chart4: string;
-  chart5: string;
-};
+export type { ThemeColors, ThemeMode, ThemeDocument, ColorTokenKey };
 
 export type ThemeState = {
-  mode: "light" | "dark";
+  mode: ThemeMode;
+  theme: ThemeDocument;
+  /** Active mode palette (convenience) */
   colors: ThemeColors;
+  light: ThemeColors;
+  dark: ThemeColors;
   radius: number;
   font: string;
   borderWidth: number;
   letterSpacing: number;
-  setMode: (mode: "light" | "dark") => void;
+  setMode: (mode: ThemeMode) => void;
   setColors: (colors: Partial<ThemeColors>) => void;
+  setLightColors: (colors: Partial<ThemeColors>) => void;
+  setDarkColors: (colors: Partial<ThemeColors>) => void;
   setRadius: (radius: number) => void;
   setFont: (font: string) => void;
   setBorderWidth: (borderWidth: number) => void;
   setLetterSpacing: (letterSpacing: number) => void;
   setPreset: (presetId: string) => void;
+  importTheme: (doc: ThemeDocument) => void;
   resetTheme: () => void;
-};
-
-const defaultColors: ThemeColors = {
-  background: "1 0 0",
-  foreground: "0.145 0 0",
-  card: "1 0 0",
-  cardForeground: "0.145 0 0",
-  popover: "1 0 0",
-  popoverForeground: "0.145 0 0",
-  primary: "0.205 0 0",
-  primaryForeground: "0.985 0 0",
-  secondary: "0.97 0 0",
-  secondaryForeground: "0.205 0 0",
-  muted: "0.97 0 0",
-  mutedForeground: "0.556 0 0",
-  accent: "0.97 0 0",
-  accentForeground: "0.205 0 0",
-  destructive: "0.577 0.245 27.325",
-  destructiveForeground: "0.985 0 0",
-  border: "0.922 0 0",
-  input: "0.922 0 0",
-  ring: "0.708 0 0",
-  chart1: "0.646 0.222 41.116",
-  chart2: "0.6 0.118 184.704",
-  chart3: "0.398 0.07 227.392",
-  chart4: "0.828 0.189 84.429",
-  chart5: "0.769 0.188 70.08",
+  undo: () => void;
+  canUndo: boolean;
 };
 
 const ThemeContext = createContext<ThemeState | undefined>(undefined);
 
+const HISTORY_LIMIT = 30;
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<"light" | "dark">("light");
-  const [colors, setColorsState] = useState<ThemeColors>(defaultColors);
-  const [radius, setRadius] = useState(0.625);
-  const [font, setFont] = useState("Inter");
-  const [borderWidth, setBorderWidth] = useState(1);
-  const [letterSpacing, setLetterSpacing] = useState(0);
+  const [mode, setModeState] = useState<ThemeMode>("light");
+  const [theme, setTheme] = useState<ThemeDocument>(() => createDefaultTheme());
   const [isHydrated, setIsHydrated] = useState(false);
+  const historyRef = useRef<ThemeDocument[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
 
-  const setColors = (newColors: Partial<ThemeColors>) => {
-    setColorsState((prev) => ({ ...prev, ...newColors }));
-  };
+  const pushHistory = useCallback((prev: ThemeDocument) => {
+    historyRef.current = [...historyRef.current.slice(-(HISTORY_LIMIT - 1)), prev];
+    setCanUndo(historyRef.current.length > 0);
+  }, []);
 
-  const setPreset = (presetId: string) => {
-    const preset = THEME_PRESETS.find((p) => p.id === presetId);
-    if (preset) {
-      const themeColors = mode === "dark" ? preset.dark : preset.light;
-      setColorsState(themeColors);
-      // Apply all design tokens from the preset
-      if (preset.font) setFont(preset.font);
-      if (preset.radius !== undefined) setRadius(preset.radius);
-      if (preset.borderWidth !== undefined) setBorderWidth(preset.borderWidth);
-      if (preset.letterSpacing !== undefined) setLetterSpacing(preset.letterSpacing);
-    }
-  };
+  const updateTheme = useCallback(
+    (updater: (prev: ThemeDocument) => ThemeDocument) => {
+      setTheme((prev) => {
+        pushHistory(prev);
+        return updater(prev);
+      });
+    },
+    [pushHistory],
+  );
 
-  const resetTheme = () => {
-    setColorsState(defaultColors);
-    setRadius(0.625);
-    setFont("Inter");
-    setBorderWidth(1);
-    setLetterSpacing(0);
-    setMode("light");
-    localStorage.removeItem("shadcn-theme");
-  };
+  const setMode = useCallback((next: ThemeMode) => {
+    setModeState(next);
+  }, []);
 
-  // Load theme from localStorage on mount
+  const setColors = useCallback(
+    (partial: Partial<ThemeColors>) => {
+      updateTheme((prev) => ({
+        ...prev,
+        [mode]: { ...prev[mode], ...partial },
+      }));
+    },
+    [mode, updateTheme],
+  );
+
+  const setLightColors = useCallback(
+    (partial: Partial<ThemeColors>) => {
+      updateTheme((prev) => ({ ...prev, light: { ...prev.light, ...partial } }));
+    },
+    [updateTheme],
+  );
+
+  const setDarkColors = useCallback(
+    (partial: Partial<ThemeColors>) => {
+      updateTheme((prev) => ({ ...prev, dark: { ...prev.dark, ...partial } }));
+    },
+    [updateTheme],
+  );
+
+  const setRadius = useCallback(
+    (radius: number) => updateTheme((prev) => ({ ...prev, radius })),
+    [updateTheme],
+  );
+  const setFont = useCallback(
+    (font: string) => updateTheme((prev) => ({ ...prev, font })),
+    [updateTheme],
+  );
+  const setBorderWidth = useCallback(
+    (borderWidth: number) => updateTheme((prev) => ({ ...prev, borderWidth })),
+    [updateTheme],
+  );
+  const setLetterSpacing = useCallback(
+    (letterSpacing: number) => updateTheme((prev) => ({ ...prev, letterSpacing })),
+    [updateTheme],
+  );
+
+  const setPreset = useCallback(
+    (presetId: string) => {
+      const preset = THEME_PRESETS.find((p) => p.id === presetId);
+      if (!preset) return;
+      updateTheme((prev) => ({
+        ...prev,
+        light: { ...preset.light },
+        dark: { ...preset.dark },
+        font: preset.font ?? prev.font,
+        radius: preset.radius ?? prev.radius,
+        borderWidth: preset.borderWidth ?? prev.borderWidth,
+        letterSpacing: preset.letterSpacing ?? prev.letterSpacing,
+      }));
+    },
+    [updateTheme],
+  );
+
+  const importTheme = useCallback(
+    (doc: ThemeDocument) => {
+      updateTheme(() => doc);
+    },
+    [updateTheme],
+  );
+
+  const resetTheme = useCallback(() => {
+    updateTheme(() => createDefaultTheme());
+    setModeState("light");
+    clearThemeStorage();
+  }, [updateTheme]);
+
+  const undo = useCallback(() => {
+    const prev = historyRef.current.pop();
+    setCanUndo(historyRef.current.length > 0);
+    if (prev) setTheme(prev);
+  }, []);
+
+  // Hydrate from URL (?theme=) then localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("shadcn-theme");
-    if (saved) {
-      try {
-        const {
-          mode: savedMode,
-          colors: savedColors,
-          radius: savedRadius,
-          font: savedFont,
-          borderWidth: savedBorderWidth,
-          letterSpacing: savedLetterSpacing,
-        } = JSON.parse(saved);
-        setMode(savedMode || "light");
-        setColorsState(savedColors || defaultColors);
-        setRadius(savedRadius || 0.625);
-        setFont(savedFont || "Inter");
-        setBorderWidth(savedBorderWidth || 1);
-        setLetterSpacing(savedLetterSpacing || 0);
-      } catch {
-        // If parsing fails, just use defaults
-      }
+    const fromUrl =
+      typeof window !== "undefined" ? themeFromSearchParams(window.location.search) : null;
+    if (fromUrl) {
+      setTheme(fromUrl);
+    } else {
+      const stored = loadThemeFromStorage();
+      if (stored) setTheme(stored);
     }
     setIsHydrated(true);
   }, []);
 
-  // Save theme to localStorage whenever it changes (after hydration)
+  // Persist
   useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem(
-        "shadcn-theme",
-        JSON.stringify({ mode, colors, radius, font, borderWidth, letterSpacing })
-      );
-    }
-  }, [mode, colors, radius, font, borderWidth, letterSpacing, isHydrated]);
+    if (isHydrated) saveThemeToStorage(theme);
+  }, [theme, isHydrated]);
 
-  // Effect to update CSS variables when state changes
+  // Apply CSS variables for the active mode + toggle .dark class
   useEffect(() => {
     const root = document.documentElement;
+    const palette = mode === "dark" ? theme.dark : theme.light;
+    applyPaletteToElement(root, palette, theme);
+    root.classList.toggle("dark", mode === "dark");
+  }, [theme, mode]);
 
-    // Update colors in OKLch format - use the colors state directly for both light and dark
-    Object.entries(colors).forEach(([key, value]) => {
-      // Convert camelCase to kebab-case for CSS variables
-      const cssVar = `--${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`;
-      // Format as oklch(L C H)
-      root.style.setProperty(cssVar, `oklch(${value})`);
-    });
-
-    // Update radius
-    root.style.setProperty("--radius", `${radius}rem`);
-
-    // Update border width
-    root.style.setProperty("--border-width", `${borderWidth}px`);
-
-    // Update letter spacing
-    root.style.setProperty("--letter-spacing", `${letterSpacing}em`);
-
-    // Update Class for Dark Mode
-    if (mode === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [colors, radius, borderWidth, letterSpacing, mode]);
-
-  // Effect to load font when it changes
   useEffect(() => {
-    loadGoogleFont(font);
-  }, [font]);
+    loadGoogleFont(theme.font);
+  }, [theme.font]);
 
-  return (
-    <ThemeContext.Provider
-      value={{
-        mode,
-        colors,
-        radius,
-        font,
-        borderWidth,
-        letterSpacing,
-        setMode,
-        setColors,
-        setRadius,
-        setFont,
-        setBorderWidth,
-        setLetterSpacing,
-        setPreset,
-        resetTheme,
-      }}
-    >
-      {children}
-    </ThemeContext.Provider>
+  const value = useMemo<ThemeState>(
+    () => ({
+      mode,
+      theme,
+      colors: mode === "dark" ? theme.dark : theme.light,
+      light: theme.light,
+      dark: theme.dark,
+      radius: theme.radius,
+      font: theme.font,
+      borderWidth: theme.borderWidth,
+      letterSpacing: theme.letterSpacing,
+      setMode,
+      setColors,
+      setLightColors,
+      setDarkColors,
+      setRadius,
+      setFont,
+      setBorderWidth,
+      setLetterSpacing,
+      setPreset,
+      importTheme,
+      resetTheme,
+      undo,
+      canUndo,
+    }),
+    [
+      mode,
+      theme,
+      setMode,
+      setColors,
+      setLightColors,
+      setDarkColors,
+      setRadius,
+      setFont,
+      setBorderWidth,
+      setLetterSpacing,
+      setPreset,
+      importTheme,
+      resetTheme,
+      undo,
+      canUndo,
+    ],
   );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
