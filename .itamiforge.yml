@@ -1,0 +1,15 @@
+catalog: true
+slug: theme-lab
+title: Theme Lab
+summary: Local-first laboratory for shadcn/ui themes — OKLCH tokens, contrast audits, and exportable CSS.
+status: active
+category: app
+featured: true
+visibility: public
+tags:
+  - shadcn
+  - theme
+  - oklch
+  - nextjs
+live: https://itamiforge.github.io/shadcn-theme-builder/
+install: bun install && bun dev

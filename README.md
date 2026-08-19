@@ -4,7 +4,7 @@ Local-first theme laboratory for [shadcn/ui](https://ui.shadcn.com/). Edit seman
 
 |            |                                                                                             |
 | ---------- | ------------------------------------------------------------------------------------------- |
-| **Docs**   | [Theme Lab on itamiforge](https://itamiforge.github.io/itamiforge/docs/projects/theme-lab/) |
+| **Docs**   | [Theme Lab in the ItamiForge catalog](https://itamiforge.github.io/itamiforge/docs/projects/#theme-lab) |
 | **Demo**   | [GitHub Pages](https://itamiforge.github.io/shadcn-theme-builder/)                          |
 | **Policy** | [SUPPORT.md](SUPPORT.md) · [pending_steps.md](pending_steps.md)                             |
 
